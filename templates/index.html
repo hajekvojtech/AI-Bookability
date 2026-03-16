@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Availability Checker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: #f8fafc;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        /* Form */
+        .form-card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #334155;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.4rem;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.65rem 0.85rem;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #6366f1;
+        }
+
+        .form-group select option {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.5rem;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover { background: #4f46e5; }
+        .btn:disabled { background: #475569; cursor: not-allowed; }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.2rem;
+            background: #334155;
+            color: #e2e8f0;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-secondary:hover { background: #475569; }
+        .btn-secondary:disabled { background: #1e293b; color: #64748b; cursor: not-allowed; }
+
+        .platform-info {
+            display: none;
+            padding: 0.5rem 0;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .platform-info.active { display: block; }
+
+        .platform-badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            background: #6366f1;
+            color: white;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .service-row {
+            display: none;
+            margin-bottom: 1rem;
+        }
+
+        .service-row.active { display: flex; gap: 1rem; }
+
+        /* Spinner */
+        .spinner-area {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner-area.active { display: block; }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #334155;
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .spinner-text {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        /* Results */
+        .results { display: none; }
+        .results.active { display: block; }
+
+        .results-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .results-header h2 {
+            font-size: 1.3rem;
+            color: #f8fafc;
+            margin-bottom: 0.3rem;
+        }
+
+        .results-meta {
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .results-meta span {
+            margin-right: 1.5rem;
+        }
+
+        /* Week sections */
+        .week-section {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid #334155;
+        }
+
+        .week-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Heat map grid */
+        .heatmap-grid {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .heatmap-grid th {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.4rem 0.5rem;
+            text-align: center;
+        }
+
+        .heatmap-grid th:first-child {
+            text-align: left;
+        }
+
+        .heatmap-grid td {
+            padding: 0.3rem 0.5rem;
+            vertical-align: middle;
+        }
+
+        .day-label {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .day-label.weekend {
+            color: #a78bfa;
+        }
+
+        /* Heat cells */
+        .heat-cell {
+            text-align: center;
+            position: relative;
+        }
+
+        .heat-bar-container {
+            width: 100%;
+            height: 26px;
+            background: #0f172a;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .heat-bar {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .heat-bar-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.9);
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+        }
+
+        .overall-pct {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: right;
+            min-width: 42px;
+        }
+
+        /* Color classes */
+        .pct-high { background: #22c55e; }
+        .pct-mid { background: #eab308; }
+        .pct-low { background: #ef4444; }
+        .pct-none { background: #475569; }
+        .pct-closed {
+            background: repeating-linear-gradient(
+                45deg, #374151, #374151 4px, #1e293b 4px, #1e293b 8px
+            );
+        }
+
+        .text-high { color: #4ade80; }
+        .text-mid { color: #facc15; }
+        .text-low { color: #f87171; }
+        .text-none { color: #6b7280; }
+        .text-closed { color: #6b7280; }
+
+        /* Week summary */
+        .week-summary {
+            margin-top: 0.6rem;
+            padding-top: 0.6rem;
+            border-top: 1px solid #334155;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .week-summary .insight-icon {
+            margin-right: 0.3rem;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            padding: 0.75rem 1rem;
+            background: #1e293b;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .legend-swatch {
+            width: 16px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        /* Error */
+        .error-msg {
+            display: none;
+            background: #7f1d1d;
+            border: 1px solid #991b1b;
+            border-radius: 8px;
+            padding: 1rem;
+            color: #fca5a5;
+            margin-bottom: 1rem;
+        }
+
+        .error-msg.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Booking Availability Checker</h1>
+        <p class="subtitle">Enter a merchant website and service to check 30-day availability</p>
+
+        <div class="form-card">
+            <div class="form-row">
+                <div class="form-group" style="flex:2">
+                    <label>Website URL</label>
+                    <input type="url" id="urlInput" placeholder="https://www.vagaro.com/yourbusiness">
+                </div>
+                <div class="form-group" style="flex:0; display:flex; align-items:flex-end;">
+                    <button class="btn-secondary" id="loadServicesBtn" onclick="loadServices()">
+                        Load Services
+                    </button>
+                </div>
+            </div>
+            <div class="platform-info" id="platformInfo">
+                <span class="platform-badge" id="platformBadge"></span>
+                <span id="bookingUrlInfo"></span>
+            </div>
+            <div class="service-row" id="serviceRow">
+                <div class="form-group">
+                    <label>Service</label>
+                    <select id="serviceSelect">
+                        <option value="">-- Select a service --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row" id="manualServiceRow">
+                <div class="form-group">
+                    <label>Service (or type manually)</label>
+                    <input type="text" id="serviceInput" placeholder="e.g. 60 Min Massage">
+                </div>
+            </div>
+            <button class="btn" id="submitBtn" onclick="checkAvailability()">
+                Check Availability
+            </button>
+        </div>
+
+        <div class="error-msg" id="errorMsg"></div>
+
+        <div class="spinner-area" id="spinnerArea">
+            <div class="spinner"></div>
+            <div class="spinner-text" id="spinnerText">Navigating booking flow...</div>
+        </div>
+
+        <div class="results" id="resultsArea">
+            <div class="results-header">
+                <h2 id="resultsTitle"></h2>
+                <div class="results-meta" id="resultsMeta"></div>
+            </div>
+            <div id="heatmapContainer"></div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-swatch pct-high"></div>
+                    <span>Wide open (80%+)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-swatch pct-mid"></div>
+                    <span>Filling up (50-79%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-swatch pct-low"></div>
+                    <span>Limited (20-49%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-swatch pct-none"></div>
+                    <span>Mostly booked (&lt;20%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-swatch pct-closed"></div>
+                    <span>Closed</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Track resolved booking URL from service loading
+        let resolvedBookingUrl = null;
+
+        async function loadServices() {
+            const url = document.getElementById('urlInput').value;
+            const btn = document.getElementById('loadServicesBtn');
+            const spinner = document.getElementById('spinnerArea');
+            const errorMsg = document.getElementById('errorMsg');
+
+            if (!url) { alert('Please enter a website URL'); return; }
+
+            btn.disabled = true;
+            btn.textContent = 'Loading...';
+            spinner.classList.add('active');
+            errorMsg.classList.remove('active');
+            document.getElementById('spinnerText').textContent = 'Detecting booking platform...';
+
+            const spinnerTexts = [
+                'Detecting booking platform...',
+                'Navigating to booking page...',
+                'Fetching service list...',
+            ];
+            let textIdx = 0;
+            const textInterval = setInterval(() => {
+                textIdx = (textIdx + 1) % spinnerTexts.length;
+                document.getElementById('spinnerText').textContent = spinnerTexts[textIdx];
+            }, 3000);
+
+            try {
+                const resp = await fetch('/services', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await resp.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Store resolved booking URL
+                resolvedBookingUrl = data.booking_url;
+
+                // Show platform info
+                const platformInfo = document.getElementById('platformInfo');
+                document.getElementById('platformBadge').textContent = data.platform;
+                document.getElementById('bookingUrlInfo').textContent = data.booking_url;
+                platformInfo.classList.add('active');
+
+                // Populate service dropdown
+                const select = document.getElementById('serviceSelect');
+                select.innerHTML = '<option value="">-- Select a service --</option>';
+
+                if (data.services && data.services.length > 0) {
+                    for (const svc of data.services) {
+                        const opt = document.createElement('option');
+                        opt.value = svc.name;
+                        let label = svc.name;
+                        const details = [];
+                        if (svc.duration_display) details.push(svc.duration_display);
+                        if (svc.price_display) details.push(svc.price_display);
+                        if (details.length > 0) label += ` (${details.join(', ')})`;
+                        opt.textContent = label;
+                        select.appendChild(opt);
+                    }
+
+                    // Show dropdown, hide manual input
+                    document.getElementById('serviceRow').classList.add('active');
+                    document.getElementById('manualServiceRow').style.display = 'none';
+
+                    btn.textContent = 'Loaded';
+                    btn.style.borderColor = '#22c55e';
+                    btn.style.color = '#22c55e';
+                } else {
+                    // No services found — keep manual input
+                    document.getElementById('serviceRow').classList.remove('active');
+                    document.getElementById('manualServiceRow').style.display = '';
+                    btn.textContent = 'No services found';
+                    btn.style.borderColor = '#eab308';
+                    btn.style.color = '#eab308';
+                }
+
+            } catch (err) {
+                errorMsg.textContent = `Error loading services: ${err.message}`;
+                errorMsg.classList.add('active');
+                btn.textContent = 'Load Services';
+            } finally {
+                clearInterval(textInterval);
+                spinner.classList.remove('active');
+                btn.disabled = false;
+            }
+        }
+
+        async function checkAvailability() {
+            const url = resolvedBookingUrl || document.getElementById('urlInput').value;
+            const serviceSelect = document.getElementById('serviceSelect');
+            const serviceInput = document.getElementById('serviceInput');
+            const service = serviceSelect.value || serviceInput.value;
+            const btn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('spinnerArea');
+            const results = document.getElementById('resultsArea');
+            const errorMsg = document.getElementById('errorMsg');
+
+            if (!url) { alert('Please enter a booking URL'); return; }
+            if (!service) { alert('Please select or enter a service name'); return; }
+
+            // Show spinner, hide results
+            btn.disabled = true;
+            spinner.classList.add('active');
+            results.classList.remove('active');
+            errorMsg.classList.remove('active');
+
+            const spinnerTexts = [
+                'Navigating booking flow...',
+                'Selecting service...',
+                'Loading availability calendar...',
+                'Fetching timeslots...',
+                'Processing data...'
+            ];
+            let textIdx = 0;
+            document.getElementById('spinnerText').textContent = spinnerTexts[0];
+            const textInterval = setInterval(() => {
+                textIdx = (textIdx + 1) % spinnerTexts.length;
+                document.getElementById('spinnerText').textContent = spinnerTexts[textIdx];
+            }, 3000);
+
+            try {
+                const resp = await fetch('/scrape', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, service, days: 30 })
+                });
+
+                const data = await resp.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                renderHeatmap(data);
+            } catch (err) {
+                errorMsg.textContent = `Error: ${err.message}`;
+                errorMsg.classList.add('active');
+            } finally {
+                clearInterval(textInterval);
+                spinner.classList.remove('active');
+                btn.disabled = false;
+            }
+        }
+
+        function getPctClass(pct) {
+            if (pct >= 0.8) return 'pct-high';
+            if (pct >= 0.5) return 'pct-mid';
+            if (pct >= 0.2) return 'pct-low';
+            return 'pct-none';
+        }
+
+        function getTextClass(pct) {
+            if (pct >= 0.8) return 'text-high';
+            if (pct >= 0.5) return 'text-mid';
+            if (pct >= 0.2) return 'text-low';
+            return 'text-none';
+        }
+
+        function formatPct(pct) {
+            return Math.round(pct * 100) + '%';
+        }
+
+        function groupByWeek(availability) {
+            const weeks = [];
+            let currentWeek = [];
+            let weekStart = null;
+
+            for (const day of availability) {
+                const d = new Date(day.date + 'T00:00:00');
+                const dayOfWeek = d.getDay(); // 0=Sun
+
+                if (dayOfWeek === 0 && currentWeek.length > 0) {
+                    weeks.push({ start: weekStart, days: currentWeek });
+                    currentWeek = [];
+                }
+
+                if (currentWeek.length === 0) {
+                    weekStart = day.date;
+                }
+                currentWeek.push(day);
+            }
+
+            if (currentWeek.length > 0) {
+                weeks.push({ start: weekStart, days: currentWeek });
+            }
+
+            return weeks;
+        }
+
+        function getWeekLabel(weekIdx, startDate) {
+            const d = new Date(startDate + 'T00:00:00');
+            const month = d.toLocaleDateString('en-US', { month: 'short' });
+            const day = d.getDate();
+
+            if (weekIdx === 0) return `This Week (${month} ${day}+)`;
+            if (weekIdx === 1) return `Next Week (${month} ${day}+)`;
+            return `Week of ${month} ${day}`;
+        }
+
+        function generateWeekSummary(days) {
+            const weekdays = days.filter(d => !['Saturday', 'Sunday'].includes(d.day_of_week));
+            const weekend = days.filter(d => ['Saturday', 'Sunday'].includes(d.day_of_week));
+
+            const issues = [];
+            const daysWithData = days.filter(d => !d.note || !d.note.includes('No data'));
+
+            if (daysWithData.length === 0) {
+                return 'No availability data for this period.';
+            }
+
+            for (const d of daysWithData) {
+                if (d.closed) {
+                    const short = d.day_of_week.substring(0, 3);
+                    issues.push(`${short} closed`);
+                    continue;
+                }
+                for (const part of ['morning', 'afternoon', 'evening']) {
+                    const pct = d[part + '_pct'];
+                    if (pct < 0.8 && pct >= 0) {
+                        const short = d.day_of_week.substring(0, 3);
+                        if (pct < 0.3) {
+                            issues.push(`${short} ${part} almost full`);
+                        } else if (pct < 0.5) {
+                            issues.push(`${short} ${part} limited`);
+                        } else {
+                            issues.push(`${short} ${part} filling up`);
+                        }
+                    }
+                }
+            }
+
+            // Overall assessment
+            const avgPct = daysWithData.reduce((sum, d) => sum + (d.overall_pct || 0), 0) / daysWithData.length;
+
+            let summary = '';
+            if (avgPct >= 0.9 && issues.length === 0) {
+                summary = 'Fully available \u2014 book any time.';
+            } else if (avgPct >= 0.8) {
+                summary = 'Mostly wide open.';
+                if (issues.length > 0) summary += ' ' + issues.join('. ') + '.';
+            } else if (avgPct >= 0.5) {
+                summary = 'Filling up.';
+                if (issues.length > 0) summary += ' ' + issues.join('. ') + '.';
+            } else {
+                summary = 'Limited availability.';
+                if (issues.length > 0) summary += ' ' + issues.join('. ') + '.';
+            }
+
+            return summary;
+        }
+
+        function renderHeatmap(data) {
+            // Header
+            const title = `${data.merchant} \u2014 ${data.service.name}`;
+            const priceStr = data.service.price_display ? ` (${data.service.price_display})` : '';
+            document.getElementById('resultsTitle').textContent = title + priceStr;
+
+            const dateFrom = new Date(data.date_range.from + 'T00:00:00');
+            const dateTo = new Date(data.date_range.to + 'T00:00:00');
+            const fromStr = dateFrom.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const toStr = dateTo.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+            document.getElementById('resultsMeta').innerHTML =
+                `<span>${fromStr} \u2013 ${toStr}</span>` +
+                `<span>Platform: ${data.platform}</span>` +
+                `<span>Max capacity: ${data.capacity.max_total} slots/day</span>`;
+
+            // Group by week
+            const weeks = groupByWeek(data.availability);
+            const container = document.getElementById('heatmapContainer');
+            container.innerHTML = '';
+
+            weeks.forEach((week, weekIdx) => {
+                const section = document.createElement('div');
+                section.className = 'week-section';
+
+                const weekLabel = getWeekLabel(weekIdx, week.start);
+                section.innerHTML = `<div class="week-title">${weekLabel}</div>`;
+
+                // Build table
+                let tableHTML = `
+                    <table class="heatmap-grid">
+                        <thead>
+                            <tr>
+                                <th style="width:100px">Day</th>
+                                <th>Morning</th>
+                                <th>Afternoon</th>
+                                <th>Evening</th>
+                                <th style="width:50px"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                for (const day of week.days) {
+                    const d = new Date(day.date + 'T00:00:00');
+                    const dayAbbr = day.day_of_week.substring(0, 3);
+                    const dayNum = d.getDate();
+                    const isWeekend = ['Saturday', 'Sunday'].includes(day.day_of_week);
+                    const dayClass = isWeekend ? 'day-label weekend' : 'day-label';
+
+                    if (day.note && day.note.includes('No data')) {
+                        tableHTML += `
+                            <tr>
+                                <td class="${dayClass}">${dayAbbr} ${dayNum}</td>
+                                <td class="heat-cell" colspan="3">
+                                    <div class="heat-bar-container">
+                                        <div class="heat-bar" style="width:100%;background:#1e293b"></div>
+                                        <span class="heat-bar-label" style="color:#475569">No data available</span>
+                                    </div>
+                                </td>
+                                <td class="overall-pct text-none">\u2014</td>
+                            </tr>
+                        `;
+                    } else if (day.closed) {
+                        tableHTML += `
+                            <tr>
+                                <td class="${dayClass}">${dayAbbr} ${dayNum}</td>
+                                <td class="heat-cell" colspan="3">
+                                    <div class="heat-bar-container">
+                                        <div class="heat-bar pct-closed" style="width:100%"></div>
+                                        <span class="heat-bar-label" style="color:#6b7280">CLOSED</span>
+                                    </div>
+                                </td>
+                                <td class="overall-pct text-closed">\u2014</td>
+                            </tr>
+                        `;
+                    } else {
+                        const mPct = day.morning_pct;
+                        const aPct = day.afternoon_pct;
+                        const ePct = day.evening_pct;
+                        const oPct = day.overall_pct;
+
+                        tableHTML += `
+                            <tr>
+                                <td class="${dayClass}">${dayAbbr} ${dayNum}</td>
+                                <td class="heat-cell">
+                                    <div class="heat-bar-container">
+                                        <div class="heat-bar ${getPctClass(mPct)}" style="width:${Math.max(mPct * 100, 3)}%"></div>
+                                        <span class="heat-bar-label">${day.morning_slots}</span>
+                                    </div>
+                                </td>
+                                <td class="heat-cell">
+                                    <div class="heat-bar-container">
+                                        <div class="heat-bar ${getPctClass(aPct)}" style="width:${Math.max(aPct * 100, 3)}%"></div>
+                                        <span class="heat-bar-label">${day.afternoon_slots}</span>
+                                    </div>
+                                </td>
+                                <td class="heat-cell">
+                                    <div class="heat-bar-container">
+                                        <div class="heat-bar ${getPctClass(ePct)}" style="width:${Math.max(ePct * 100, 3)}%"></div>
+                                        <span class="heat-bar-label">${day.evening_slots}</span>
+                                    </div>
+                                </td>
+                                <td class="overall-pct ${getTextClass(oPct)}">${formatPct(oPct)}</td>
+                            </tr>
+                        `;
+                    }
+                }
+
+                tableHTML += '</tbody></table>';
+                section.innerHTML += tableHTML;
+
+                // Week summary
+                const summary = generateWeekSummary(week.days);
+                section.innerHTML += `
+                    <div class="week-summary">
+                        <span class="insight-icon">\u2192</span> ${summary}
+                    </div>
+                `;
+
+                container.appendChild(section);
+            });
+
+            document.getElementById('resultsArea').classList.add('active');
+        }
+    </script>
+</body>
+</html>

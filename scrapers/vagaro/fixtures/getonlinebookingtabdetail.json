@@ -1,0 +1,44 @@
+{
+  "lstOnlineServiceDetail": [
+    {
+      "serviceID": 100,
+      "serviceTitle": "Hair Services",
+      "serviceLevel": 0,
+      "parentServiceID": 0,
+      "price": 0,
+      "duration": 0
+    },
+    {
+      "serviceID": 26744247,
+      "serviceTitle": "Women's Haircut",
+      "serviceLevel": 1,
+      "parentServiceID": 100,
+      "price": 75.0,
+      "duration": 60
+    },
+    {
+      "serviceID": 26744248,
+      "serviceTitle": "Men's Haircut",
+      "serviceLevel": 1,
+      "parentServiceID": 100,
+      "price": 35.0,
+      "duration": 30
+    },
+    {
+      "serviceID": 200,
+      "serviceTitle": "Color Services",
+      "serviceLevel": 0,
+      "parentServiceID": 0,
+      "price": 0,
+      "duration": 0
+    },
+    {
+      "serviceID": 26744300,
+      "serviceTitle": "Full Color",
+      "serviceLevel": 1,
+      "parentServiceID": 200,
+      "price": 120.0,
+      "duration": 120
+    }
+  ]
+}
