@@ -10,3 +10,7 @@ data/
 # Project living-docs (contain session-specific / private notes)
 CLAUDE.md
 LOG.md
+
+# Local-only analysis / planning artifacts
+*.html
+!templates/*.html
