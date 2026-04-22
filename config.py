@@ -53,6 +53,15 @@ BOOKING_PLATFORM_DOMAINS = {
     "bychronos.com": "byChronos",
     "booker.com": "Booker",
     "location.booker.com": "Booker",
+    "joinboulevard.com": "Boulevard",
+    "static.joinboulevard.com": "Boulevard",
+    "pushpress.com": "PushPress",
+    "leadconnectorhq.com": "LeadConnector",
+    "msgsndr.com": "LeadConnector",
+    "joinsmiley.com": "Smiley",
+    "business.joinsmiley.com": "Smiley",
+    "myoryx.com": "Myoryx",
+    "mychart.myoryx.com": "Myoryx",
 }
 
 # --- Social media domains ---
@@ -159,6 +168,9 @@ PLATFORM_SIGNATURES = {
         "html_patterns": [
             r"sq-appointment",
             r"square-appointments",
+            r"PUBLIC_SQUARE_APPTS_URL_BASE",
+            r"ecom\.appointment-direct-booking",
+            r"\"[^\"]+\.square\.site\"",
         ],
     },
     "Booksy": {
@@ -180,10 +192,34 @@ PLATFORM_SIGNATURES = {
         "html_patterns": [r"jane-widget", r"jane-iframe", r"janeapp\.com"],
     },
     "Boulevard": {
-        "scripts": ["joinblvd.com"],
-        "iframes": ["joinblvd.com"],
-        "links": ["joinblvd.com/"],
-        "html_patterns": [r"blvd-book-button", r"joinblvd\.com"],
+        "scripts": ["joinblvd.com", "joinboulevard.com"],
+        "iframes": ["joinblvd.com", "joinboulevard.com"],
+        "links": ["joinblvd.com/", "joinboulevard.com/"],
+        "html_patterns": [r"blvd-book-button", r"joinblvd\.com", r"joinboulevard\.com", r"blvd-book"],
+    },
+    "PushPress": {
+        "scripts": ["pushpress.com"],
+        "iframes": ["pushpress.com"],
+        "links": ["pushpress.com/"],
+        "html_patterns": [r"pushpress\.com", r"pushpress"],
+    },
+    "LeadConnector": {
+        "scripts": ["leadconnectorhq.com", "msgsndr.com"],
+        "iframes": ["leadconnectorhq.com", "msgsndr.com"],
+        "links": ["leadconnectorhq.com/", "msgsndr.com/"],
+        "html_patterns": [r"leadconnectorhq\.com", r"msgsndr\.com"],
+    },
+    "Smiley": {
+        "scripts": ["joinsmiley.com"],
+        "iframes": ["joinsmiley.com"],
+        "links": ["joinsmiley.com/"],
+        "html_patterns": [r"joinsmiley\.com"],
+    },
+    "Myoryx": {
+        "scripts": ["myoryx.com"],
+        "iframes": ["myoryx.com"],
+        "links": ["myoryx.com/", "mychart.myoryx.com"],
+        "html_patterns": [r"myoryx\.com", r"mychart\.myoryx"],
     },
     "WellnessLiving": {
         "scripts": ["wellnessliving.com/rs/url-widget"],

@@ -6,3 +6,7 @@ __pycache__/
 .claude/
 output/
 data/
+
+# Project living-docs (contain session-specific / private notes)
+CLAUDE.md
+LOG.md
