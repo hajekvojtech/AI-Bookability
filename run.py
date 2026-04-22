@@ -2,7 +2,7 @@
 """
 Merchant Website Booking Classifier
 
-Crawls Groupon merchant websites and classifies their booking capabilities.
+Crawls merchant websites and classifies their booking capabilities.
 
 Usage:
     python run.py                       # Run full pipeline (resume if interrupted)

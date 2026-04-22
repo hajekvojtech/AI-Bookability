@@ -66,6 +66,21 @@ Adding a new platform is a 5-line change in `config.py` (domain + scripts/iframe
 
 Your input CSV, the SQLite ledger, and the exported results CSV all stay local. Nothing in `data/` is committed.
 
+## Other files in this repo (experimental / exploratory)
+
+The root has several scripts from earlier exploration that are **not part of the current pipeline**. You can safely ignore them unless you're interested in how specific platforms were reverse-engineered.
+
+| file | purpose |
+|---|---|
+| `attempt_booking.py` · `book_via_api.py` · `try_booking_api.py` | Proof-of-concept bookings via browser automation and direct API calls |
+| `investigate_booking_api.py` · `investigate_bychronos.py` · `intercept_auth_flow.py` · `find_api_endpoints.py` | Reverse-engineering specific booking platforms' APIs |
+| `scrape_timeslots.py` | Scraping real-time availability from Vagaro and byChronos |
+| `app.py` · `templates/` | Small Flask app for visualizing availability as a heat map |
+| `generate_spot_check.py` · `scrapers/` | Earlier scraper architecture + manual verification harness |
+| `setup.sh` | Convenience installer (superseded by the quick-start above) |
+
+For the classifier, you only need `prepass.py`, `crawler.py`, `crawler_playwright.py`, `export.py`, `pipeline/`, and `config.py`.
+
 ## License
 
 No license file yet. If you intend to reuse this, open an issue.
